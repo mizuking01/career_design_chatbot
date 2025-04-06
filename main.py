@@ -17,8 +17,8 @@ load_dotenv()
 st.title("質問応答チャットボット")
 
 # フォルダのパス
-lecture_folder = "./kougisiryou"  # 講義資料フォルダ
-example_folder = "./examples"     # 回答例フォルダ
+lecture_folder = "./Programming_engineering"  # 講義資料フォルダ
+example_folder = "./Programming engineering_examples"     # 回答例フォルダ
 log_folder = "./logs"             # 会話ログ保存フォルダ
 
 # インデックスの作成
