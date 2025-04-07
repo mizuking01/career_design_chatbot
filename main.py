@@ -21,6 +21,11 @@ lecture_folder = "./Programming_engineering"  # 講義資料フォルダ
 example_folder = "./Programming engineering_examples"     # 回答例フォルダ
 log_folder = "./logs"             # 会話ログ保存フォルダ
 
+# フォルダの存在確認
+folders_to_load = [lecture_folder]
+if os.path.exists(example_folder):
+    folders_to_load.append(example_folder)
+
 # インデックスの作成
 def load_and_index_multiple_folders(folders):
     all_texts = []
@@ -28,9 +33,9 @@ def load_and_index_multiple_folders(folders):
         texts = load_and_index_folder(folder, return_documents=True)
         all_texts.extend(texts)
     return create_faiss_index(all_texts)
-
-# 講義資料と参考例を統合したインデックスを作成
-combined_index = load_and_index_multiple_folders([lecture_folder, example_folder])
+    
+# フォルダをまとめて読み込み＆インデックス化
+combined_index = load_and_index_multiple_folders(folders_to_load)
 
 # セッションステートでメッセージの履歴を保持
 if "messages" not in st.session_state:

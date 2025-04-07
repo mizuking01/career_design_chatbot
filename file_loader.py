@@ -1,15 +1,16 @@
-from langchain.document_loaders import PyMuPDFLoader
-from langchain.document_loaders import TextLoader  
-from docx import Document
+from langchain_core.documents import Document 
+from langchain.document_loaders import PyMuPDFLoader, TextLoader  
+from docx import Document as DocxDocument
 
 def load_docx(docx_path):
-    document = Document(docx_path)
-    return "\n".join([para.text for para in document.paragraphs])
+    docx = DocxDocument(docx_path)
+    content = "\n".join([para.text for para in docx.paragraphs])
+    return [Document(page_content=content, metadata={"source": docx_path})]  # ← 修正！
 
 def load_pdf(pdf_path):
     loader = PyMuPDFLoader(pdf_path)
-    return loader.load()
+    return loader.load()  # PyMuPDFLoader は Document を返すのでそのままでOK！
 
 def load_text(text_path):
     loader = TextLoader(text_path)
-    return loader.load()
+    return loader.load()  # TextLoader も Document を返すのでOK！
