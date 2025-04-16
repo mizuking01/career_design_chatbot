@@ -26,7 +26,7 @@ def search_index(faiss_index, query):
     content = results[0].page_content if results else "該当する情報が資料内に見つかりませんでした。"
 
     # ChatGPT 4.0oを使って応答を生成
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
     model=OPENAI_API_MODEL,
     temperature=OPENAI_API_TEMPERATURE,
     messages=[
@@ -59,7 +59,7 @@ def search_index(faiss_index, query):
     ]
 )
 
-    answer = response['choices'][0]['message']['content'].strip()
+    answer = response.choices[0].message.content.strip()
     return answer
 
 
