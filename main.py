@@ -62,6 +62,9 @@ if query:
 
     st.session_state.messages.append({"role": "assistant", "content": response})
 
+    # ここでログを即時保存
+    save_single_turn_to_sheet(query, response)
+
 # Google Sheets に接続
 def get_gsheet():
     import json
@@ -71,20 +74,9 @@ def get_gsheet():
     client = gspread.authorize(creds)
     sheet = client.open(st.secrets["SHEET_NAME"]).sheet1
     return sheet
-
-# 会話履歴を1行ずつGoogle Sheetsに保存（student_idは常にanonymous）
-def save_conversation_log_to_sheet():
+    
+# 会話履歴を1行だけGoogle Sheetsに保存（student_idは常にanonymous）
+def save_single_turn_to_sheet(user_query, assistant_response):
     sheet = get_gsheet()
-    # ユーザーとアシスタントのペアを順番に取り出して記録
-    for i in range(0, len(st.session_state.messages) - 1, 2):
-        user_msg = st.session_state.messages[i]
-        bot_msg = st.session_state.messages[i + 1]
-        if user_msg["role"] == "user" and bot_msg["role"] == "assistant":
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            sheet.append_row([timestamp, user_msg["content"], bot_msg["content"]])
-
-
-# 会話終了ボタン押されたらGoogle Sheetsに保存
-if st.button("会話を終了"):
-    save_conversation_log_to_sheet()
-    st.info("会話が終了しました")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sheet.append_row([timestamp, user_query, assistant_response])
