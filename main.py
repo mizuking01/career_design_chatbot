@@ -34,6 +34,23 @@ def load_and_index_multiple_folders(folders):
         all_texts.extend(texts)
     return create_faiss_index(all_texts)
     
+# Google Sheets に接続
+def get_gsheet():
+    import json
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds_dict = json.loads(st.secrets["GSPREAD_SERVICE_ACCOUNT"])
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    client = gspread.authorize(creds)
+    sheet = client.open(st.secrets["SHEET_NAME"]).sheet1
+    return sheet
+    
+# 会話履歴を1行だけGoogle Sheetsに保存（student_idは常にanonymous）
+def save_single_turn_to_sheet(user_query, assistant_response):
+    sheet = get_gsheet()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sheet.append_row([timestamp, user_query, assistant_response])
+
+    
 # フォルダをまとめて読み込み＆インデックス化
 combined_index = load_and_index_multiple_folders(folders_to_load)
 
@@ -65,18 +82,3 @@ if query:
     # ここでログを即時保存
     save_single_turn_to_sheet(query, response)
 
-# Google Sheets に接続
-def get_gsheet():
-    import json
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_dict = json.loads(st.secrets["GSPREAD_SERVICE_ACCOUNT"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    client = gspread.authorize(creds)
-    sheet = client.open(st.secrets["SHEET_NAME"]).sheet1
-    return sheet
-    
-# 会話履歴を1行だけGoogle Sheetsに保存（student_idは常にanonymous）
-def save_single_turn_to_sheet(user_query, assistant_response):
-    sheet = get_gsheet()
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sheet.append_row([timestamp, user_query, assistant_response])
